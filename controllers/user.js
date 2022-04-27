@@ -16,11 +16,11 @@ const registerUser = async (req, res) => {
    const role = isFirstAccount ? 'superadmin' : 'user';
 
    const user = await User.create({fname, lname ,password , branch, email ,role});
-   res.status(StatusCodes.CREATED).json({msg:"User created Successfully"})
+   res.status(StatusCodes.CREATED).json({msg:"Registered user successfully"})
 };
 
 const loginUser = async (req, res) => {
-    console.log(req.body);
+    // console.log(req.body);
     const {email , password } = req.body;
 
     if(!email || !password){
@@ -43,8 +43,8 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  console.log("register user");
-  res.status(200).json('logOut')
+  console.log("we have success");
+  res.status(200).send('logOut')
 };
 
 module.exports = {
