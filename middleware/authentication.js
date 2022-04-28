@@ -5,7 +5,7 @@ const CustomError = require("../errors");
 const authenticateUser = async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    throw new CustomError.UnauthenticatedError("Invalid Authentication...");
+    throw new CustomError.UnauthenticatedError("Invalid Authentication");
   }
 
   const token = authHeader.split(" ")[1];

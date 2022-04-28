@@ -13,7 +13,7 @@ const morgan = require("morgan");
 const connDb = require("./db/connect");
 
 // routes
-const userRoutes = require("./routes/userRoute");
+const userRoutes = require("./routes/authRoute");
 
 // middleware
 const notFoundMiddleware = require("./middleware/not-found");
