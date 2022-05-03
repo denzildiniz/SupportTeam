@@ -13,7 +13,8 @@ const morgan = require("morgan");
 const connDb = require("./db/connect");
 
 // routes
-const userRoutes = require("./routes/authRoute");
+const authRoute = require("./routes/authRoute");
+const userRoute = require("./routes/userRote");
 
 // middleware
 const notFoundMiddleware = require("./middleware/not-found");
@@ -27,7 +28,8 @@ app.get("/", (req, res) => {
   res.status(StatusCodes.OK).send("get route");
 });
 
-app.use("/api/st/auth", userRoutes);
+app.use("/api/st/auth", authRoute);
+app.use("/api/st/user", userRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
