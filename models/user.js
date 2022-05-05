@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, "please provide a password"],
-      maxlength: 50,
+      // maxlength: 50,
       minlength: 3,
     },
     branch: {
