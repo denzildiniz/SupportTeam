@@ -5,6 +5,7 @@ const {
   getAllUsers,
   getSingleUser,
   UpdateUser,
+  UpdateUserRole,
   UpdateUserPassword,
 } = require("../controllers/userController");
 const {
@@ -16,8 +17,11 @@ router
   .route("/")
   .get([authenticateUser, authorizeRoles("superadmin", "admin")], getAllUsers);
 router
+  .route("/UpdateUserRole/:id")
+  .patch(authenticateUser, authorizeRoles("superadmin"), UpdateUserRole);
+router
   .route("/updateuser/:id")
-  .post(authenticateUser, authorizeRoles("superadmin", "admin"), UpdateUser);
+  .patch(authenticateUser, authorizeRoles("superadmin", "admin"), UpdateUser);
 
 // route pending yet
 router.route("/UpdateUserPassword").patch(UpdateUserPassword);
