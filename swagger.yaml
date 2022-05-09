@@ -65,7 +65,6 @@ paths:
           type: string
         required: true
         description: The user ID.
-
     get:
       tags:
       - Users
@@ -87,8 +86,7 @@ paths:
           type: string
         required: true
         description: The user ID.
-
-    post:
+    patch:
       tags:
       - Users
       summary: updateUserRole
@@ -118,8 +116,7 @@ paths:
           type: string
         required: true
         description: The user ID.
-
-    post:
+    patch:
       tags:
       - Users
       summary: updateUser
