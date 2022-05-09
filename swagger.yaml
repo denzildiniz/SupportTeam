@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: SupportTeam
+  contact: {}
+  version: '1.0'
+servers:
+- url: https://support-team-sj.herokuapp.com/api/st
+  variables: {}
+paths:
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Login Route
+      operationId: LoginRoute
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRouteRequest'
+            example:
+              email: peter@gmail.com
+              password: '12345'
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security: []
+  /auth/register:
+    post:
+      tags:
+      - Auth
+      summary: Register Route
+      operationId: RegisterRoute
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRouteRequest'
+            example:
+              fname: john
+              lname: left
+              password: '12345'
+              branch: goa
+              email: john@gmail.com
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /user/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The user ID.
+
+    get:
+      tags:
+      - Users
+      summary: getSingleUser
+      operationId: getSingleUser
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /user/UpdateUserRole/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The user ID.
+
+    post:
+      tags:
+      - Users
+      summary: updateUserRole
+      operationId: updateUserRole
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateUserRoleRequest'
+            example:
+              role: admin
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /user/updateuser/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The user ID.
+
+    post:
+      tags:
+      - Users
+      summary: updateUser
+      operationId: updateUser
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateUserRequest'
+            example:
+              fname: user
+              lname: dave
+              branch: goa
+              email: User@gmail.com
+              status: active
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /user:
+    get:
+      tags:
+      - Users
+      summary: getAllUsers
+      operationId: getAllUsers
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+components:
+  schemas:
+    LoginRouteRequest:
+      title: LoginRouteRequest
+      required:
+      - email
+      - password
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: peter@gmail.com
+        password: '12345'
+    RegisterRouteRequest:
+      title: RegisterRouteRequest
+      required:
+      - fname
+      - lname
+      - password
+      - branch
+      - email
+      type: object
+      properties:
+        fname:
+          type: string
+        lname:
+          type: string
+        password:
+          type: string
+        branch:
+          type: string
+        email:
+          type: string
+      example:
+        fname: john
+        lname: left
+        password: '12345'
+        branch: goa
+        email: john@gmail.com
+    updateUserRoleRequest:
+      title: updateUserRoleRequest
+      required:
+      - role
+      type: object
+      properties:
+        role:
+          type: string
+      example:
+        role: admin
+    updateUserRequest:
+      title: updateUserRequest
+      required:
+      - fname
+      - lname
+      - branch
+      - email
+      - status
+      type: object
+      properties:
+        fname:
+          type: string
+        lname:
+          type: string
+        branch:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+      example:
+        fname: user
+        lname: dave
+        branch: goa
+        email: User@gmail.com
+        status: active
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+security: []
+tags:
+- name: Auth
+- name: Users
