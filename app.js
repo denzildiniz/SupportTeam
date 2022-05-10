@@ -7,9 +7,9 @@ const xss = require("xss-clean");
 const rateLimiter = require("express-rate-limit");
 
 // Swagger
-const swaggerUI = require('swagger-ui-express');
-const YAML = require('yamljs');
-const swaggerDocument = YAML.load('./swagger.yaml');
+const swaggerUI = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./swagger.yaml");
 
 // express
 const express = require("express");
@@ -25,6 +25,7 @@ const connDb = require("./db/connect");
 // routes
 const authRoute = require("./routes/authRoute");
 const userRoute = require("./routes/userRote");
+const productRoute = require("./routes/productRoute");
 
 // middleware
 const notFoundMiddleware = require("./middleware/not-found");
@@ -46,13 +47,14 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan("tiny"));
 
-app.get('/', (req, res) => {
+app.get("/", (req, res) => {
   res.send('<h1>Jobs API</h1><a href="/apiDocs">Documentation</a>');
 });
-app.use('/apiDocs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use("/apiDocs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 app.use("/api/st/auth", authRoute);
 app.use("/api/st/user", userRoute);
+app.use("/api/st/product", productRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
