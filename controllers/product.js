@@ -3,23 +3,61 @@ const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
 
 const createProduct = async (req, res) => {
-  res.send("createProduct route");
+  req.body.createdBy = req.user.userId;
+  if (req.user.role === "admin") {
+    req.body.branch = req.user.branch;
+  }
+  const product = await Product.create(req.body);
+  res.status(StatusCodes.CREATED).json({ product });
 };
 
 const getAllProduct = async (req, res) => {
-  res.send("getAllProduct route");
+  let products;
+  if (req.user.role === "superadmin") {
+    products = await Product.find({});
+  }
+  if (req.user.role === "admin") {
+    let { branch } = req.user;
+    products = await Product.find({ branch });
+  }
+  res.status(StatusCodes.OK).json({ products, count: products.length });
 };
 
 const getSingleProduct = async (req, res) => {
-  res.send("getSingleProduct route");
+  const { id: productId } = req.params;
+  const product = await Product.findOne({ _id: productId });
+
+  if (!product) {
+    throw new CustomError.NotFoundError(`no product found with ${productId}`);
+  }
+
+  res.status(StatusCodes.OK).json({ product });
 };
 
 const updateProduct = async (req, res) => {
-  res.send("updateProduct route");
+  const {id:productId}=req.params;
+  const product = await Product.findOneAndUpdate({_id:productId},req.body,{
+    new: true,
+    runValidators: true,
+  })
+
+  if(!product){
+    throw new CustomError.NotFoundError(`No product found with ${productId}`)
+  }
+
+  res.status(StatusCodes.OK).json({product})
 };
 
 const deleteProduct = async (req, res) => {
-  res.send("deleteProduct route");
+  const {id:productId}=req.params;
+  const product = await Product.findOne({_id:productId})
+
+  if(!product){
+    throw new CustomError.NotFoundError(`No product found with ${productId}`)
+  }
+
+  await product.remove();
+  res.status(StatusCodes.OK).json({msg:'Product removed sucessfully'})
 };
 
 module.exports = {

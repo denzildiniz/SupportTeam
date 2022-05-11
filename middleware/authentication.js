@@ -14,7 +14,7 @@ const authenticateUser = async (req, res, next) => {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     // console.log(payload);
     req.user = {
-      userID: payload.userId,
+      userId: payload.userId,
       email: payload.email,
       role: payload.role,
       branch: payload.branch,

@@ -17,7 +17,10 @@ const {
 router
   .route("/")
   .get(authenticateUser, getAllProduct)
-  .post([authenticateUser, authorizeRoles("superadmin")], createProduct);
+  .post(
+    [authenticateUser, authorizeRoles("superadmin", "admin")],
+    createProduct
+  );
 
 router
   .route("/:id")
