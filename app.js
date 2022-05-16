@@ -49,7 +49,7 @@ app.use(xss());
 app.use(morgan("tiny"));
 
 app.get("/", (req, res) => {
-  res.send('<h1>Jobs API</h1><a href="/apiDocs">Documentation</a>');
+  res.send('<h1>Support Team api</h1><a href="/apiDocs">Documentation</a>');
 });
 app.use("/apiDocs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 

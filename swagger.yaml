@@ -156,6 +156,100 @@ paths:
       deprecated: false
       security:
       - bearer: []
+  /product:
+    get:
+      tags:
+      - Product
+      summary: getAllProducts
+      operationId: getAllProducts
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    post:
+      tags:
+      - Product
+      summary: createProduct
+      operationId: createProduct
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createProductRequest'
+            example:
+              device: monitor
+              branch: dhaka
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+  /product/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+        description: The product ID.
+    get:
+      tags:
+      - Product
+      summary: getSingleProduct
+      operationId: getSingleProduct
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    patch:
+      tags:
+      - Product
+      summary: updateProduct
+      operationId: updateProduct
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/updateProductRequest'
+            example:
+              device: monitor
+              branch: goa
+        required: true
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
+    delete:
+      tags:
+      - Product
+      summary: deleteProduct
+      operationId: deleteProduct
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+      deprecated: false
+      security:
+      - bearer: []
 components:
   schemas:
     LoginRouteRequest:
@@ -234,6 +328,34 @@ components:
         branch: goa
         email: User@gmail.com
         status: active
+    createProductRequest:
+      title: createProductRequest
+      required:
+      - device
+      - branch
+      type: object
+      properties:
+        device:
+          type: string
+        branch:
+          type: string
+      example:
+        device: monitor
+        branch: dhaka
+    updateProductRequest:
+      title: updateProductRequest
+      required:
+      - device
+      - branch
+      type: object
+      properties:
+        device:
+          type: string
+        branch:
+          type: string
+      example:
+        device: monitor
+        branch: goa
   securitySchemes:
     bearer:
       type: http
@@ -242,3 +364,4 @@ security: []
 tags:
 - name: Auth
 - name: Users
+- name: Product
