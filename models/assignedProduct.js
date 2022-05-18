@@ -14,6 +14,15 @@ const signleDevice = mongoose.Schema({
     ref: "Product",
     required: true,
   },
+  status:{
+    type: String,
+    required: true,
+    enum: {
+      values: ["active", "notactive"],
+      message: "{VALUE} not supported",
+    },
+    default: "active",
+  }
 });
 
 const assignedProductSchema = mongoose.Schema({
@@ -39,5 +48,21 @@ const assignedProductSchema = mongoose.Schema({
     required: true,
   },
 });
+
+assignedProductSchema.statics.changeProductStatus = async function (devices) {
+  try {
+    let [{product:productId}] = devices;
+     await this.model('Product').findOneAndUpdate({_id:productId},{
+      tag:'assigned'
+     })
+
+} catch (error) {
+  console.log(error.message)
+}
+};
+
+assignedProductSchema.post('save',async function(){
+  await this.constructor.changeProductStatus(this.assignedDevices)
+})
 
 module.exports = mongoose.model("AssignedProduct", assignedProductSchema);

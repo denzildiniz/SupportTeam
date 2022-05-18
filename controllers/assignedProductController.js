@@ -1,11 +1,12 @@
 const AssignedProduct = require("../models/assignedProduct");
 const User = require("../models/user");
 const Product = require("../models/product");
+
 const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
 
 const createAssignedProduct = async (req, res) => {
-  const { branch, user: userId, assignedDevices, assignedBy } = req.body;
+  const { branch, user: userId, assignedDevices } = req.body;
   if (!branch || !userId) {
     throw new CustomError.BadRequestError("Please provide branch and userId");
   }
@@ -47,6 +48,11 @@ const createAssignedProduct = async (req, res) => {
         "Product needs to be from same branch"
       );
     }
+    if (dbProduct.tag === 'assigned') {
+      throw new CustomError.BadRequestError(
+        "Product already in use"
+      );
+    }
     const { device, _id } = dbProduct;
     const singleProduct = {
       device,
@@ -55,16 +61,17 @@ const createAssignedProduct = async (req, res) => {
     devicesToAssign = [...devicesToAssign, singleProduct];
   }
 
-  const assignedUserDevice = {
+  const assignedDevicesResult = new AssignedProduct({
     branch,
     user: userId,
     assignedDevices: devicesToAssign,
     assignedBy: req.user.userId,
-  };
-
-  console.log(devicesToAssign);
-  console.log(req.body);
-  res.send(req.body);
+  });
+  const result = await assignedDevicesResult.save();
+  
+  res
+    .status(StatusCodes.CREATED)
+    .json({ assignedDevices: result, msg: "success" });
 };
 
 const getAllAssignedProduct = async (req, res) => {
@@ -80,10 +87,12 @@ const getCurrentUserAssignedProduct = async (req, res) => {
 };
 
 const updateAssignedProduct = async (req, res) => {
+  // only update the devices[] check 
   res.send("Update assigned prodduct");
 };
 
 const deleteAssignedProduct = async (req, res) => {
+  // will delete the entire document 
   res.send("Delete assigned prodduct");
 };
 
