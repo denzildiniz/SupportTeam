@@ -42,18 +42,30 @@ const createAssignedProduct = async (req, res) => {
     throw new CustomError.BadRequestError("product already in use");
   }
 
-  await AssignedProduct.create({
-    branch,
-    user: userId,
+  const checkActiveDocExists = await AssignedProduct.findOne({
     product: productId,
-    assignedBy: req.user.userId,
+    status: "active",
   });
-  await Product.findOneAndUpdate(
-    { _id: productId },
-    {
-      tag: "assigned",
-    }
-  );
+  if (checkActiveDocExists) {
+    throw new CustomError.BadRequestError(`Product already in use`);
+  }
+
+  try {
+    await AssignedProduct.create({
+      branch,
+      user: userId,
+      product: productId,
+      assignedBy: req.user.userId,
+    });
+    await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        tag: "assigned",
+      }
+    );
+  } catch (error) {
+    res.send(error.message);
+  }
   res.status(StatusCodes.CREATED).json({ msg: "created" });
 };
 
@@ -74,7 +86,11 @@ const getSingleAssignedProduct = async (req, res) => {
   const { id: assignedDeviceId } = req.params;
 
   if (req.user.role === "superadmin") {
-    const singleDoc = await AssignedProduct.findOne({ _id: assignedDeviceId });
+    const singleDoc = await AssignedProduct.findOne({
+      _id: assignedDeviceId,
+    })
+      .populate({ path: "user", select: "fname branch email status" })
+      .populate({ path: "product", select: "device branch tag" });
     if (!singleDoc) {
       throw new CustomError.NotFoundError(
         `No document found with id ${assignedDeviceId}`
@@ -98,7 +114,10 @@ const getSingleAssignedProduct = async (req, res) => {
 };
 
 const getCurrentUserAssignedProduct = async (req, res) => {
-  const myList = await AssignedProduct.find({ user: req.user.userId });
+  const myList = await AssignedProduct.find({
+    user: req.user.userId,
+    status: "active",
+  });
   if (!myList) {
     throw new CustomError.NotFoundError("No devices assigned");
   }
@@ -108,8 +127,37 @@ const getCurrentUserAssignedProduct = async (req, res) => {
 };
 
 const removeAssignedProduct = async (req, res) => {
-  // only update the devices[] check
-  res.send("Update assigned prodduct");
+  const {
+    params: { id: assignedDeviceId },
+    body: { product: productId },
+  } = req;
+  const assignedDevice = await AssignedProduct.findOne({
+    _id: assignedDeviceId,
+    product: productId,
+  });
+  if (!assignedDevice) {
+    throw new CustomError.NotFoundError(
+      `No document found with id ${assignedDeviceId}`
+    );
+  }
+  try {
+    await AssignedProduct.findOneAndUpdate(
+      { _id: assignedDeviceId },
+      {
+        status: "inactive",
+      }
+    );
+    await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        tag: "notassigned",
+      }
+    );
+  } catch (error) {
+    res.send(error.message);
+  }
+
+  res.status(StatusCodes.OK).json({ msg: "updated" });
 };
 
 // const deleteAssignedProduct = async (req, res) => {
