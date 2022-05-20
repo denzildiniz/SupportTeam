@@ -1,34 +1,5 @@
 const mongoose = require("mongoose");
 
-const signleDevice = mongoose.Schema({
-  device: {
-    type: String,
-    required: [true, "Please provide the type of device"],
-    enum: {
-      values: ["monitor", "mouse", "keyboard", "headphone"],
-      message: "{VALUE} is not supported",
-    },
-  },
-  product: {
-    type: mongoose.Types.ObjectId,
-    ref: "Product",
-    required: true,
-  },
-  status: {
-    type: String,
-    required: true,
-    enum: {
-      values: ["active", "inactive"],
-      message: "{VALUE} not supported",
-    },
-    default: "active",
-  },
-  assignedDate: {
-    type: Date,
-    default: Date.now(),
-  },
-});
-
 const assignedProductSchema = mongoose.Schema(
   {
     branch: {
@@ -42,7 +13,20 @@ const assignedProductSchema = mongoose.Schema(
       ref: "User",
       required: true,
     },
-    assignedDevices: [signleDevice],
+    product: {
+      type: mongoose.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    status: {
+      type: String,
+      required: true,
+      enum: {
+        values: ["active", "inactive"],
+        message: "{VALUE} not supported",
+      },
+      default: "active",
+    },
     assignedBy: {
       type: mongoose.Types.ObjectId,
       ref: "User",
@@ -51,26 +35,5 @@ const assignedProductSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-
-assignedProductSchema.statics.changeProductStatus = async function (devices) {
-  try {
-    for (const device of devices) {
-      let { product: productId } = device;
-      // console.log(productId);
-      await this.model("Product").findOneAndUpdate(
-        { _id: productId },
-        {
-          tag: "assigned",
-        }
-      );
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
-assignedProductSchema.post("save", async function () {
-  await this.constructor.changeProductStatus(this.assignedDevices);
-});
 
 module.exports = mongoose.model("AssignedProduct", assignedProductSchema);

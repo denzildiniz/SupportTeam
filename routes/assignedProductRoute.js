@@ -3,12 +3,11 @@ const router = express.Router();
 
 const {
   createAssignedProduct,
-  removeAssignedProduct,
   getAllAssignedProduct,
   getSingleAssignedProduct,
   getCurrentUserAssignedProduct,
-  updateAssignedProduct,
-  deleteAssignedProduct,
+  removeAssignedProduct,
+  // deleteAssignedProduct,
 } = require("../controllers/assignedProductController");
 
 const {
@@ -32,13 +31,6 @@ router
   .get(authenticateUser, getCurrentUserAssignedProduct);
 
 router
-  .route("/removeProduct/:id")
-  .patch(
-    [authenticateUser, authorizeRoles("superadmin", "admin")],
-    removeAssignedProduct
-  );
-
-router
   .route("/:id")
   .get(
     [authenticateUser, authorizeRoles("superadmin", "admin")],
@@ -46,11 +38,11 @@ router
   )
   .patch(
     [authenticateUser, authorizeRoles("superadmin", "admin")],
-    updateAssignedProduct
+    removeAssignedProduct
   )
-  .delete(
-    [authenticateUser, authorizeRoles("superadmin", "admin")],
-    deleteAssignedProduct
-  );
+  // .delete(
+  //   [authenticateUser, authorizeRoles("superadmin", "admin")],
+  //   deleteAssignedProduct
+  // );
 
 module.exports = router;
