@@ -14,55 +14,63 @@ const signleDevice = mongoose.Schema({
     ref: "Product",
     required: true,
   },
-  status:{
+  status: {
     type: String,
     required: true,
     enum: {
-      values: ["active", "notactive"],
+      values: ["active", "inactive"],
       message: "{VALUE} not supported",
     },
     default: "active",
-  }
-});
-
-const assignedProductSchema = mongoose.Schema({
-  branch: {
-    type: String,
-    required: [true, "please provide a branch name"],
-    enum: ["goa", "dhaka", "sylhet"],
-    default: "goa",
   },
   assignedDate: {
     type: Date,
     default: Date.now(),
   },
-  user: {
-    type: mongoose.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  assignedDevices: [signleDevice],
-  assignedBy: {
-    type: mongoose.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
 });
+
+const assignedProductSchema = mongoose.Schema(
+  {
+    branch: {
+      type: String,
+      required: [true, "please provide a branch name"],
+      enum: ["goa", "dhaka", "sylhet"],
+      default: "goa",
+    },
+    user: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    assignedDevices: [signleDevice],
+    assignedBy: {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
 assignedProductSchema.statics.changeProductStatus = async function (devices) {
   try {
-    let [{product:productId}] = devices;
-     await this.model('Product').findOneAndUpdate({_id:productId},{
-      tag:'assigned'
-     })
-
-} catch (error) {
-  console.log(error.message)
-}
+    for (const device of devices) {
+      let { product: productId } = device;
+      // console.log(productId);
+      await this.model("Product").findOneAndUpdate(
+        { _id: productId },
+        {
+          tag: "assigned",
+        }
+      );
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
-assignedProductSchema.post('save',async function(){
-  await this.constructor.changeProductStatus(this.assignedDevices)
-})
+assignedProductSchema.post("save", async function () {
+  await this.constructor.changeProductStatus(this.assignedDevices);
+});
 
 module.exports = mongoose.model("AssignedProduct", assignedProductSchema);

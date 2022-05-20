@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   createAssignedProduct,
+  removeAssignedProduct,
   getAllAssignedProduct,
   getSingleAssignedProduct,
   getCurrentUserAssignedProduct,
@@ -29,6 +30,13 @@ router
 router
   .route("/allMyProducts")
   .get(authenticateUser, getCurrentUserAssignedProduct);
+
+router
+  .route("/removeProduct/:id")
+  .patch(
+    [authenticateUser, authorizeRoles("superadmin", "admin")],
+    removeAssignedProduct
+  );
 
 router
   .route("/:id")
