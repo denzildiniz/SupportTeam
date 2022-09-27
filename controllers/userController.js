@@ -4,7 +4,8 @@ const CustomError = require("../errors");
 const { checkPermission, checkUserRole } = require("../utility");
 
 const getAllUsers = async (req, res) => {
-  const user = await User.find({}).select("-password");
+  const result = await User.find({}).select("-password");
+  const user = result.filter((item) => item.role !== "superadmin");
   res.status(StatusCodes.OK).json({ user });
 };
 
@@ -21,10 +22,10 @@ const getSingleUser = async (req, res) => {
 const UpdateUser = async (req, res) => {
   const {
     params: { id: userId },
-    body: { fname, lname, branch, email, status },
+    body: { fname, lname, branch, email, status, role },
   } = req;
 
-  if (!fname || !lname || !branch || !email || !status) {
+  if (!fname || !lname || !branch || !email || !status || !role) {
     throw new CustomError.BadRequestError("Please provide the required fields");
   }
 
@@ -40,6 +41,7 @@ const UpdateUser = async (req, res) => {
   user.branch = branch;
   user.email = email;
   user.status = status;
+  user.role = role;
 
   await user.save();
 
@@ -48,28 +50,29 @@ const UpdateUser = async (req, res) => {
 };
 
 const UpdateUserRole = async (req, res) => {
-  const {
-    params: { id: userId },
-    body: { role },
-  } = req;
-  if (!role) {
-    throw new CustomError.BadRequestError("Please specify the role");
-  }
-  const user = await User.findOne({ _id: userId });
-  if (!user) {
-    throw new CustomError.BadRequestError(
-      `No user found with UserId ${userId}`
-    );
-  }
-  if (req.user.role !== "superadmin") {
-    throw new CustomError.UnauthorizedError(
-      "Not authorize to perform this task"
-    );
-  }
-  user.role = role;
-  await user.save();
+  // const {
+  //   params: { id: userId },
+  //   body: { role },
+  // } = req;
+  // if (!role) {
+  //   throw new CustomError.BadRequestError("Please specify the role");
+  // }
+  // const user = await User.findOne({ _id: userId });
+  // if (!user) {
+  //   throw new CustomError.BadRequestError(
+  //     `No user found with UserId ${userId}`
+  //   );
+  // }
+  // if (req.user.role !== "superadmin") {
+  //   throw new CustomError.UnauthorizedError(
+  //     "Not authorize to perform this task"
+  //   );
+  // }
+  // user.role = role;
+  // await user.save();
 
-  res.status(StatusCodes.OK).json({ user });
+  // res.status(StatusCodes.OK).json({ user });
+  res.status(StatusCodes.OK).json({ message: "Depricated endPoint" });
 };
 
 const UpdateUserPassword = (req, res) => {

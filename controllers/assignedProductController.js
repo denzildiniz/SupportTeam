@@ -71,14 +71,64 @@ const createAssignedProduct = async (req, res) => {
 
 const getAllAssignedProduct = async (req, res) => {
   if (req.user.role === "superadmin") {
-    const assignedList = await AssignedProduct.find({});
-    res.status(StatusCodes.OK).json({ assignedList });
+    const response = await AssignedProduct.find({})
+      .populate({ path: "product", select: "device" })
+      .populate({ path: "user", select: "email fname lname" })
+      .populate({ path: "assignedBy", select: "email" });
+
+      const assignedDevicesList = {
+        _id: "",
+        userFname: "",
+        userLname: "",
+        userEmail:  "",
+        productType: "",
+        assignBy: "",
+        assignDate: "",
+      };
+
+      const finalResponse = response.map((item) => {
+        assignedDevicesList._id = item._id;
+        assignedDevicesList.userFname = item.user.fname;
+        assignedDevicesList.userLname = item.user.lname;
+        assignedDevicesList.userEmail = item.user.email;
+        assignedDevicesList.productType = item.product.device;
+        assignedDevicesList.assignBy = item.assignedBy.email;
+        assignedDevicesList.assignDate = item.createdAt;
+        return assignedDevicesList;
+      })
+
+    res.status(StatusCodes.OK).json({ "assignedDevices": finalResponse});
   }
   if (req.user.role === "admin") {
-    const assignedList = await AssignedProduct.find({
+    const response = await AssignedProduct.find({
       branch: req.user.branch,
-    });
-    res.status(StatusCodes.OK).json({ assignedList });
+    })
+      .populate({ path: "product", select: "device" })
+      .populate({ path: "user", select: "email fname lname" });
+
+      const assignedDevicesList = {
+        _id: "",
+        userFname: "",
+        userLname: "",
+        userEmail:  "",
+        productType: "",
+        assignBy: "",
+        assignDate: "",
+      };
+
+      const finalResponse = response.map((item) => {
+        assignedDevicesList._id = item._id;
+        assignedDevicesList.userFname = item.user.fname;
+        assignedDevicesList.userLname = item.user.lname;
+        assignedDevicesList.userEmail = item.user.email;
+        assignedDevicesList.productType = item.product.device;
+        assignedDevicesList.assignBy = item.assignedBy.email;
+        assignedDevicesList.assignDate = item.createdAt;
+        return assignedDevicesList;
+      })
+
+
+    res.status(StatusCodes.OK).json({ finalResponse });
   }
 };
 

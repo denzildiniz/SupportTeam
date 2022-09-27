@@ -64,8 +64,8 @@ const productSchema = new mongoose.Schema(
     branch: {
       type: String,
       required: [true, "please provide a branch name"],
-      enum: ["goa", "dhaka", "sylhet"],
-      default: "goa",
+      enum: ["Goa", "Dhaka", "Sylhet"],
+      default: "Goa",
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
