@@ -178,12 +178,12 @@ const getCurrentUserAssignedProduct = async (req, res) => {
 
 const removeAssignedProduct = async (req, res) => {
   const {
-    params: { id: assignedDeviceId },
-    body: { product: productId },
+    params: { id: assignedDeviceId }
+    // body: { product: productId },
   } = req;
   const assignedDevice = await AssignedProduct.findOne({
     _id: assignedDeviceId,
-    product: productId,
+    // product: productId,
   });
   if (!assignedDevice) {
     throw new CustomError.NotFoundError(
@@ -191,12 +191,15 @@ const removeAssignedProduct = async (req, res) => {
     );
   }
   try {
-    await AssignedProduct.findOneAndUpdate(
+    const response = await AssignedProduct.findOneAndUpdate(
       { _id: assignedDeviceId },
       {
         status: "inactive",
       }
     );
+
+     const {product : productId} = response;
+    
     await Product.findOneAndUpdate(
       { _id: productId },
       {
