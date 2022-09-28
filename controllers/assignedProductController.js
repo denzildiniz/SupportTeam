@@ -71,7 +71,7 @@ const createAssignedProduct = async (req, res) => {
 
 const getAllAssignedProduct = async (req, res) => {
   if (req.user.role === "superadmin") {
-    const response = await AssignedProduct.find({})
+    const response = await AssignedProduct.find({status : 'active'})
       .populate({ path: "product", select: "device" })
       .populate({ path: "user", select: "email fname lname" })
       .populate({ path: "assignedBy", select: "email" });
@@ -102,6 +102,7 @@ const getAllAssignedProduct = async (req, res) => {
   if (req.user.role === "admin") {
     const response = await AssignedProduct.find({
       branch: req.user.branch,
+      status : 'active',
     })
       .populate({ path: "product", select: "device" })
       .populate({ path: "user", select: "email fname lname" });
