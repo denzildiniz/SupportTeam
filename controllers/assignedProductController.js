@@ -70,66 +70,57 @@ const createAssignedProduct = async (req, res) => {
 };
 
 const getAllAssignedProduct = async (req, res) => {
+  // Global object created to store values
+  const assignedDevicesList = {
+    _id: "",
+    userFname: "",
+    userLname: "",
+    userEmail: "",
+    productType: "",
+    assignBy: "",
+    assignDate: "",
+  };
+
   if (req.user.role === "superadmin") {
-    const response = await AssignedProduct.find({status : 'active'})
-      .populate({ path: "product", select: "device" })
+    const response = await AssignedProduct.find({ status: "active" })
       .populate({ path: "user", select: "email fname lname" })
+      .populate({ path: "product", select: "device" })
       .populate({ path: "assignedBy", select: "email" });
 
-      const assignedDevicesList = {
-        _id: "",
-        userFname: "",
-        userLname: "",
-        userEmail:  "",
-        productType: "",
-        assignBy: "",
-        assignDate: "",
-      };
+    const finalResponse = response.map((item) => {
+      assignedDevicesList._id = item._id;
+      assignedDevicesList.userFname = item.user.fname;
+      assignedDevicesList.userLname = item.user.lname;
+      assignedDevicesList.userEmail = item.user.email;
+      assignedDevicesList.productType = item.product.device;
+      assignedDevicesList.assignBy = item.assignedBy.email;
+      assignedDevicesList.assignDate = item.createdAt;
+      return assignedDevicesList;
+    });
 
-      const finalResponse = response.map((item) => {
-        assignedDevicesList._id = item._id;
-        assignedDevicesList.userFname = item.user.fname;
-        assignedDevicesList.userLname = item.user.lname;
-        assignedDevicesList.userEmail = item.user.email;
-        assignedDevicesList.productType = item.product.device;
-        assignedDevicesList.assignBy = item.assignedBy.email;
-        assignedDevicesList.assignDate = item.createdAt;
-        return assignedDevicesList;
-      })
-
-    res.status(StatusCodes.OK).json({ "assignedDevices": finalResponse});
+    res.status(StatusCodes.OK).json({ assignedDevices: finalResponse });
   }
   if (req.user.role === "admin") {
     const response = await AssignedProduct.find({
       branch: req.user.branch,
-      status : 'active',
+      status: "active",
     })
+      .populate({ path: "user", select: "email fname lname" })
       .populate({ path: "product", select: "device" })
-      .populate({ path: "user", select: "email fname lname" });
+      .populate({ path: "assignedBy", select: "email" });
 
-      const assignedDevicesList = {
-        _id: "",
-        userFname: "",
-        userLname: "",
-        userEmail:  "",
-        productType: "",
-        assignBy: "",
-        assignDate: "",
-      };
+    const finalResponse = response.map((item) => {
+      assignedDevicesList._id = item._id;
+      assignedDevicesList.userFname = item.user.fname;
+      assignedDevicesList.userLname = item.user.lname;
+      assignedDevicesList.userEmail = item.user.email;
+      assignedDevicesList.productType = item.product.device;
+      assignedDevicesList.assignBy = item.assignedBy.email;
+      assignedDevicesList.assignDate = item.createdAt;
+      return assignedDevicesList;
+    });
 
-      const finalResponse = response.map((item) => {
-        assignedDevicesList._id = item._id;
-        assignedDevicesList.userFname = item.user.fname;
-        assignedDevicesList.userLname = item.user.lname;
-        assignedDevicesList.userEmail = item.user.email;
-        assignedDevicesList.productType = item.product.device;
-        assignedDevicesList.assignBy = item.assignedBy.email;
-        assignedDevicesList.assignDate = item.createdAt;
-        return assignedDevicesList;
-      })
-
-
-    res.status(StatusCodes.OK).json({ finalResponse });
+    res.status(StatusCodes.OK).json({ assignedDevices: finalResponse });
   }
 };
 
@@ -179,7 +170,7 @@ const getCurrentUserAssignedProduct = async (req, res) => {
 
 const removeAssignedProduct = async (req, res) => {
   const {
-    params: { id: assignedDeviceId }
+    params: { id: assignedDeviceId },
     // body: { product: productId },
   } = req;
   const assignedDevice = await AssignedProduct.findOne({
@@ -199,8 +190,8 @@ const removeAssignedProduct = async (req, res) => {
       }
     );
 
-     const {product : productId} = response;
-    
+    const { product: productId } = response;
+
     await Product.findOneAndUpdate(
       { _id: productId },
       {
