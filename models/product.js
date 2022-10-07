@@ -2,22 +2,47 @@ const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
   {
-    device: {
+    // device: {
+    //   type: String,
+    //   required: [true, "Please provide the type of device"],
+    //   enum: {
+    //     values: ["monitor", "mouse", "keyboard", "headphone"],
+    //     message: "{VALUE} is not supported",
+    //   },
+    // },
+    branch: {
       type: String,
-      required: [true, "Please provide the type of device"],
-      enum: {
-        values: ["monitor", "mouse", "keyboard", "headphone"],
-        message: "{VALUE} is not supported",
-      },
+      required: [true, "please provide a branch name"],
+      enum: ["Goa", "Dhaka", "Sylhet"],
+      default: "Goa",
     },
     dateOfPurchase: {
       type: Date,
       default: Date.now(),
     },
-    // Properties Specific To PC
+    productCategory: {
+      type: String,
+      trim: true,
+    },
+    productType: {
+      type: String,
+      trim: true,
+    },
+    warrentyExpire: {
+      type: Date,
+      default: '',
+    },
     systemName: {
       type: String,
-      // required:true,
+      trim: true,
+    },
+    systemModel: {
+      type: String,
+      trim: true,
+    },
+    systemBrand:{
+      type: String,
+      trim: true,
     },
     cpu: {
       type: String,
@@ -27,7 +52,11 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    hdd: {
+    storageType: {
+      type: String,
+      trim: true,
+    },
+    storageCapacity: {
       type: String,
       trim: true,
     },
@@ -39,19 +68,22 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    ipAddress: {
+    productKey: {
       type: String,
       trim: true,
     },
-    windowVersion: {
+    serialNumber: {
       type: String,
-      enum: {
-        values: ["window10", "window8", "winddow7"],
-        message: "{VALUE} is not supported",
-      },
+      trim: true,
     },
-    // Properties Specific To Mouse
-    // Properties Specific To Keyboard
+    accessoriesName: {
+      type: String,
+      trim: true,
+    },
+    networkDeviceName: {
+      type: String,
+      trim: true,
+    },
     tag: {
       type: String,
       required: true,
@@ -60,12 +92,6 @@ const productSchema = new mongoose.Schema(
         message: "{VALUE} not supported",
       },
       default: "notassigned",
-    },
-    branch: {
-      type: String,
-      required: [true, "please provide a branch name"],
-      enum: ["Goa", "Dhaka", "Sylhet"],
-      default: "Goa",
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
