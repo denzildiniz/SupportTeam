@@ -71,33 +71,34 @@ const createAssignedProduct = async (req, res) => {
 
 const getAllAssignedProduct = async (req, res) => {
   // Global object created to store values
-  const assignedDevicesList = {
-    _id: "",
-    userFname: "",
-    userLname: "",
-    userEmail: "",
-    productType: "",
-    assignBy: "",
-    assignDate: "",
-  };
+  // const assignedDevicesList = {
+  //   _id: "",
+  //   userFname: "",
+  //   userLname: "",
+  //   userEmail: "",
+  //   productType: "",
+  //   assignBy: "",
+  //   assignDate: "",
+  // };
 
   if (req.user.role === "superadmin") {
     const response = await AssignedProduct.find({ status: "active" })
       .populate({ path: "user", select: "email fname lname" })
-      .populate({ path: "product", select: "device" })
+      .populate({ path: "product", select: "productType" })
       .populate({ path: "assignedBy", select: "email" });
 
     const finalResponse = response.map((item) => {
+      const assignedDevicesList = {};
       assignedDevicesList._id = item._id;
       assignedDevicesList.userFname = item.user.fname;
       assignedDevicesList.userLname = item.user.lname;
       assignedDevicesList.userEmail = item.user.email;
-      assignedDevicesList.productType = item.product.device;
+      assignedDevicesList.productType = item.product.productType;
       assignedDevicesList.assignBy = item.assignedBy.email;
       assignedDevicesList.assignDate = item.createdAt;
       return assignedDevicesList;
     });
-
+    console.log('finalResponse', finalResponse);
     res.status(StatusCodes.OK).json({ assignedDevices: finalResponse });
   }
   if (req.user.role === "admin") {
@@ -110,11 +111,12 @@ const getAllAssignedProduct = async (req, res) => {
       .populate({ path: "assignedBy", select: "email" });
 
     const finalResponse = response.map((item) => {
+      const assignedDevicesList = {};
       assignedDevicesList._id = item._id;
       assignedDevicesList.userFname = item.user.fname;
       assignedDevicesList.userLname = item.user.lname;
       assignedDevicesList.userEmail = item.user.email;
-      assignedDevicesList.productType = item.product.device;
+      assignedDevicesList.productType = item.product.productType;
       assignedDevicesList.assignBy = item.assignedBy.email;
       assignedDevicesList.assignDate = item.createdAt;
       return assignedDevicesList;

@@ -23,14 +23,16 @@ const productSchema = new mongoose.Schema(
     productCategory: {
       type: String,
       trim: true,
+      required:true,
     },
     productType: {
       type: String,
       trim: true,
+      required:true,
     },
-    warrentyExpire: {
-      type: Date,
-      default: '',
+    warrantyPeriod: {
+      type: String,
+      trim: true,
     },
     systemName: {
       type: String,
