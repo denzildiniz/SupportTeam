@@ -7,6 +7,7 @@ const {
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  deleteAllProduct,
 } = require("../controllers/product");
 
 const {
@@ -20,6 +21,13 @@ router
   .post(
     [authenticateUser, authorizeRoles("superadmin", "admin")],
     createProduct
+  );
+
+router
+  .route("/deleteAllProduct")
+  .delete(
+    [authenticateUser, authorizeRoles("superadmin", "admin")],
+    deleteAllProduct
   );
 
 router

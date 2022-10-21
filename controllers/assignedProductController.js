@@ -207,10 +207,10 @@ const removeAssignedProduct = async (req, res) => {
   res.status(StatusCodes.OK).json({ msg: "updated" });
 };
 
-// const deleteAssignedProduct = async (req, res) => {
-//   will delete the entire document
-//   res.send("Delete assigned prodduct");
-// };
+const deleteAllAssignedProduct = async (req, res) => {
+  await AssignedProduct.deleteMany({});
+  res.status(StatusCodes.OK).json({message:'all assigned products deleated'})
+};
 
 module.exports = {
   createAssignedProduct,
@@ -218,5 +218,6 @@ module.exports = {
   getSingleAssignedProduct,
   getCurrentUserAssignedProduct,
   removeAssignedProduct,
+  deleteAllAssignedProduct,
   // deleteAssignedProduct,
 };

@@ -7,6 +7,7 @@ const {
   getSingleAssignedProduct,
   getCurrentUserAssignedProduct,
   removeAssignedProduct,
+  deleteAllAssignedProduct,
   // deleteAssignedProduct,
 } = require("../controllers/assignedProductController");
 
@@ -31,6 +32,13 @@ router
   .get(authenticateUser, getCurrentUserAssignedProduct);
 
 router
+  .route("/deleteAllAssignedProduct")
+  .delete(
+    [authenticateUser, authorizeRoles("superadmin", "admin")],
+    deleteAllAssignedProduct
+  );
+
+router
   .route("/:id")
   .get(
     [authenticateUser, authorizeRoles("superadmin", "admin")],
@@ -39,10 +47,10 @@ router
   .patch(
     [authenticateUser, authorizeRoles("superadmin", "admin")],
     removeAssignedProduct
-  )
-  // .delete(
-  //   [authenticateUser, authorizeRoles("superadmin", "admin")],
-  //   deleteAssignedProduct
-  // );
+  );
+// .delete(
+//   [authenticateUser, authorizeRoles("superadmin", "admin")],
+//   deleteAssignedProduct
+// );
 
 module.exports = router;

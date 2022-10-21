@@ -75,6 +75,11 @@ const UpdateUserRole = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Depricated endPoint" });
 };
 
+const deleteAllUsers = async(req, res) => {
+  await User.deleteMany({role:'user'})
+  res.status(StatusCodes.OK).json({message:'All users deleated'})
+};
+
 const UpdateUserPassword = (req, res) => {
   res.send("UpdateUserPassword");
 };
@@ -84,5 +89,6 @@ module.exports = {
   getSingleUser,
   UpdateUser,
   UpdateUserRole,
+  deleteAllUsers,
   UpdateUserPassword,
 };

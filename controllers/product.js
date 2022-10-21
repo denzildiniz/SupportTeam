@@ -60,10 +60,16 @@ const deleteProduct = async (req, res) => {
   res.status(StatusCodes.OK).json({msg:'Product removed sucessfully'})
 };
 
+const deleteAllProduct = async (req, res) => {
+  await Product.deleteMany({});
+  res.status(StatusCodes.OK).json({msg:'All products Deleated'})
+};
+
 module.exports = {
   createProduct,
   getAllProduct,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  deleteAllProduct,
 };
