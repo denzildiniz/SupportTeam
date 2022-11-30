@@ -3,10 +3,25 @@ const { StatusCodes } = require("http-status-codes");
 const CustomError = require("../errors");
 const { checkPermission, checkUserRole } = require("../utility");
 
+// const getAllUsers = async (req, res) => {
+//   const result = await User.find({}).select("-password");
+//   const user = result.filter((item) => item.role !== "superadmin");
+//   res.status(StatusCodes.OK).json({ user });
+// };
+
 const getAllUsers = async (req, res) => {
-  const result = await User.find({}).select("-password");
-  const user = result.filter((item) => item.role !== "superadmin");
-  res.status(StatusCodes.OK).json({ user });
+  let result = User.find({}).select("-password");
+  // const users = result.filter((item) => item.role !== "superadmin");
+
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  result = result.skip(skip).limit(limit);
+
+  let finalUserList = await result;
+
+  res.status(StatusCodes.OK).json({ 'Users' : finalUserList , 'nbhits':finalUserList.length});
 };
 
 const getSingleUser = async (req, res) => {
