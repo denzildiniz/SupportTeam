@@ -17,8 +17,8 @@ const productSchema = new mongoose.Schema(
       default: "Goa",
     },
     dateOfPurchase: {
-      type: Date,
-      default: Date.now(),
+      type: String,
+      default: Date,
     },
     productCategory: {
       type: String,
@@ -67,6 +67,10 @@ const productSchema = new mongoose.Schema(
       trim: true,
     },
     macAddress: {
+      type: String,
+      trim: true,
+    },
+    ipAddress: {
       type: String,
       trim: true,
     },
