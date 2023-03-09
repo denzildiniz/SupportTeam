@@ -48,6 +48,7 @@ app.use(helmet());
 app.use(xss());
 app.use(morgan("tiny"));
 
+console.log('test');
 app.get("/", (req, res) => {
   res.send('<h1>Support Team api</h1><a href="/apiDocs">Documentation</a>');
 });
