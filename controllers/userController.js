@@ -1,7 +1,9 @@
 const User = require("../models/user");
-const { StatusCodes } = require("http-status-codes");
+const { StatusCodes, OK } = require("http-status-codes");
 const CustomError = require("../errors");
 const { checkPermission, checkUserRole } = require("../utility");
+// const user = require("../models/user");
+const { json } = require("express");
 
 // const getAllUsers = async (req, res) => {
 //   const result = await User.find({}).select("-password");
@@ -10,7 +12,33 @@ const { checkPermission, checkUserRole } = require("../utility");
 // };
 
 const getAllUsers = async (req, res) => {
-  let result = User.find({}).select("-password");
+  const { username } = req.query;
+  const queryObject = {};
+
+  if (req.query.page === '-1') {
+    if (req.user.role === 'superadmin') {
+      let users = await User.find({}).select('-password');
+      res.status(StatusCodes.OK).json({ user: users, count: users.length })
+      return;
+    }
+    if (req.user.role === 'admin') {
+      let users = await User.find({ branch: req.user.branch }).select('-password');
+      res.status(StatusCodes.OK).json({ user: users, count: users.length })
+      return;
+    }
+  }
+
+  if (req.user.role === 'admin') {
+    queryObject['branch'] = req.user.branch;
+  }
+
+  if (username) {
+    queryObject.username = { $regex: username, $options: 'i' };
+  }
+  // console.log(queryObject);
+
+  let result = User.find(queryObject).select("-password");
+  const userCount = await User.countDocuments(queryObject);
   // const users = result.filter((item) => item.role !== "superadmin");
 
   const page = Number(req.query.page) || 1;
@@ -21,7 +49,7 @@ const getAllUsers = async (req, res) => {
 
   let finalUserList = await result;
 
-  res.status(StatusCodes.OK).json({ 'Users' : finalUserList , 'nbhits':finalUserList.length});
+  res.status(StatusCodes.OK).json({ user: finalUserList, nbhits: userCount });
 };
 
 const getSingleUser = async (req, res) => {
@@ -29,6 +57,12 @@ const getSingleUser = async (req, res) => {
   const user = await User.findOne({ _id: userId }).select("-password");
   if (!user) {
     throw new CustomError.NotFoundError(`no user found with id ${userId}`);
+  }
+  // check for admin branch
+  if (req.user.role === 'admin') {
+    if (req.user.branch !== user.branch) {
+      throw new CustomError.UnauthorizedError("Not authorize to perform this task");
+    }
   }
   checkPermission(req.user, user._id);
   res.status(StatusCodes.OK).json({ user });
@@ -90,9 +124,9 @@ const UpdateUserRole = async (req, res) => {
   res.status(StatusCodes.OK).json({ message: "Depricated endPoint" });
 };
 
-const deleteAllUsers = async(req, res) => {
-  await User.deleteMany({role:'user'})
-  res.status(StatusCodes.OK).json({message:'All users deleated'})
+const deleteAllUsers = async (req, res) => {
+  await User.deleteMany({ role: "user" });
+  res.status(StatusCodes.OK).json({ message: "All users deleated" });
 };
 
 const UpdateUserPassword = (req, res) => {
