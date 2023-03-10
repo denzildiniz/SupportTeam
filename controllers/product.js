@@ -12,15 +12,30 @@ const createProduct = async (req, res) => {
 };
 
 const getAllProduct = async (req, res) => {
-  let products;
-  if (req.user.role === "superadmin") {
-    products = await Product.find({});
-  }
+  const { } = req.query; // for future search query
+  const queryObject = {};
+
   if (req.user.role === "admin") {
-    let { branch } = req.user;
-    products = await Product.find({ branch });
+    queryObject["branch"] = req.user.branch;
   }
-  res.status(StatusCodes.OK).json({ products, count: products.length });
+
+  const count = await Product.aggregate([
+    { $match: queryObject },
+    { $count: "total" }
+  ]);
+  
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  const productList = await Product.find(queryObject)
+    .skip(skip)
+    .limit(limit)
+    .lean();
+
+  const total = count.length ? count[0].total : 0;
+
+  res.status(StatusCodes.OK).json({ products: productList, total: total });
 };
 
 const getSingleProduct = async (req, res) => {
@@ -35,34 +50,34 @@ const getSingleProduct = async (req, res) => {
 };
 
 const updateProduct = async (req, res) => {
-  const {id:productId}=req.params;
-  const product = await Product.findOneAndUpdate({_id:productId},req.body,{
+  const { id: productId } = req.params;
+  const product = await Product.findOneAndUpdate({ _id: productId }, req.body, {
     new: true,
     runValidators: true,
   })
 
-  if(!product){
+  if (!product) {
     throw new CustomError.NotFoundError(`No product found with ${productId}`)
   }
 
-  res.status(StatusCodes.OK).json({product})
+  res.status(StatusCodes.OK).json({ product })
 };
 
 const deleteProduct = async (req, res) => {
-  const {id:productId}=req.params;
-  const product = await Product.findOne({_id:productId})
+  const { id: productId } = req.params;
+  const product = await Product.findOne({ _id: productId })
 
-  if(!product){
+  if (!product) {
     throw new CustomError.NotFoundError(`No product found with ${productId}`)
   }
 
   await product.remove();
-  res.status(StatusCodes.OK).json({msg:'Product removed sucessfully'})
+  res.status(StatusCodes.OK).json({ msg: 'Product removed sucessfully' })
 };
 
 const deleteAllProduct = async (req, res) => {
   await Product.deleteMany({});
-  res.status(StatusCodes.OK).json({msg:'All products Deleated'})
+  res.status(StatusCodes.OK).json({ msg: 'All products Deleated' })
 };
 
 module.exports = {
