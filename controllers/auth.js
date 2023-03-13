@@ -4,14 +4,14 @@ const CustomError = require("../errors");
 
 const registerUser = async (req, res) => {
   // console.log(req.body)
-  const { fname, lname, password, branch, email, userName } = req.body;
+  const { fname, lname, password, branch, email, username } = req.body;
 
   const emailExist = await User.findOne({ email });
   if (emailExist) {
     throw new CustomError.BadRequestError("Email already in Use");
   }
 
-  const CheckUserNameExists = await User.findOne({ userName });
+  const CheckUserNameExists = await User.findOne({ username });
   if (CheckUserNameExists) {
     throw new CustomError.BadRequestError("Please use different UserName");
   }
@@ -27,7 +27,7 @@ const registerUser = async (req, res) => {
     branch,
     email,
     role,
-    userName,
+    username,
   });
   res.status(StatusCodes.CREATED).json({ msg: "Registered user successfully" });
 };
