@@ -70,107 +70,83 @@ const createAssignedProduct = async (req, res) => {
 };
 
 const getAllAssignedProduct = async (req, res) => {
+  const { name } = req.query; // for future search query
+  const queryObject = {};
+  const filter = { status: "active" };
 
-  if (req.user.role === "superadmin") {
-    const response = await AssignedProduct.find({ status: "active" })
-      .populate({ path: "user", select: "email fname lname username" })
-      .populate({
-        path: "product",
-        select:
-          "productType branch productCategory warrantyPeriod systemName systemModel systemBrand cpu ram storageType storageCapacity os macAddress productKey serialNumber accessoriesName networkDeviceName tag",
-      })
-      .populate({ path: "assignedBy", select: "email" });
-    console.log(response);
-    const finalResponse = response.map((item) => {
-      const assignedDevicesList = {};
-      assignedDevicesList._id = item._id;
-      assignedDevicesList.firstName = item.user.fname;
-      assignedDevicesList.lastName = item.user.lname;
-      assignedDevicesList.email = item.user.email;
-      assignedDevicesList.username = item.user.username;
-      assignedDevicesList.branch = item.product.branch;
-      assignedDevicesList.warrantyPeriod = item.product.warrantyPeriod;
-      assignedDevicesList.productCategory = item.product.productCategory;
-      assignedDevicesList.systemName = item.product.systemName;
-      assignedDevicesList.systemModel = item.product.systemModel;
-      assignedDevicesList.productType = item.product.productType;
-      assignedDevicesList.systemBrand = item.product.systemBrand;
-      assignedDevicesList.cpu = item.product.cpu;
-      assignedDevicesList.ram = item.product.ram;
-      assignedDevicesList.storageCapacity = item.product.storageCapacity;
-      assignedDevicesList.os = item.product.os;
-      assignedDevicesList.macAddress = item.product.macAddress;
-      assignedDevicesList.productKey = item.product.productKey;
-      assignedDevicesList.serialNumber = item.product.serialNumber;
-      assignedDevicesList.accessoriesName =
-        item?.product?.accessoriesName == undefined
-          ? "--"
-          : item?.product?.accessoriesName;
-      assignedDevicesList.networkDeviceName =
-        item?.product?.networkDeviceName == undefined
-          ? "--"
-          : item?.product?.networkDeviceName;
-      assignedDevicesList.tag = item.product.tag;
-      assignedDevicesList.storageType = item.product.storageType;
-      assignedDevicesList.assignBy = item.assignedBy.email;
-      assignedDevicesList.assignDate = item.createdAt;
-      return assignedDevicesList;
-    });
-    // console.log("finalResponse", finalResponse);
-    res.status(StatusCodes.OK).json({ assignedDevices: finalResponse });
+  const page = Number(req.query.page) || 1;
+  const limit = Number(req.query.limit) || 10;
+  const skip = (page - 1) * limit;
+
+  if (name) {
+    queryObject.name = { $regex: name, $options: 'i' };
   }
+
   if (req.user.role === "admin") {
-    const response = await AssignedProduct.find({
-      branch: req.user.branch,
-      status: "active",
-    })
-      .populate({ path: "user", select: "email fname lname userName" })
+    filter.branch = req.user.branch;
+  } 
+  console.log(queryObject);
+  // return;
+  const [assignedProducts, totalCount] = await Promise.all([
+    AssignedProduct.find(filter, queryObject)
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "user",
+        select: "email fname lname username",
+      })
       .populate({
         path: "product",
         select:
           "productType branch productCategory warrantyPeriod systemName systemModel systemBrand cpu ram storageType storageCapacity os macAddress productKey serialNumber accessoriesName networkDeviceName tag",
       })
-      .populate({ path: "assignedBy", select: "email" });
+      .populate({
+        path: "assignedBy",
+        select: "email",
+      })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    AssignedProduct.countDocuments(filter),
+  ]);
 
-    const finalResponse = response.map((item) => {
-      const assignedDevicesList = {};
-      assignedDevicesList._id = item._id;
-      assignedDevicesList.firstname = item.user.fname;
-      assignedDevicesList.lastName = item.user.lname;
-      assignedDevicesList.email = item.user.email;
-      assignedDevicesList.username = item.user.userName;
-      assignedDevicesList.branch = item.product.branch;
-      assignedDevicesList.warrantyPeriod = item.product.warrantyPeriod;
-      assignedDevicesList.productCategory = item.product.productCategory;
-      assignedDevicesList.systemName = item.product.systemName;
-      assignedDevicesList.systemModel = item.product.systemModel;
-      assignedDevicesList.productType = item.product.productType;
-      assignedDevicesList.systemBrand = item.product.systemBrand;
-      assignedDevicesList.cpu = item.product.cpu;
-      assignedDevicesList.ram = item.product.ram;
-      assignedDevicesList.storageCapacity = item.product.storageCapacity;
-      assignedDevicesList.os = item.product.os;
-      assignedDevicesList.macAddress = item.product.macAddress;
-      assignedDevicesList.productKey = item.product.productKey;
-      assignedDevicesList.serialNumber = item.product.serialNumber;
-      assignedDevicesList.accessoriesName =
-        item?.product?.accessoriesName == undefined
-          ? "--"
-          : item?.product?.accessoriesName;
-      assignedDevicesList.networkDeviceName =
-        item?.product?.networkDeviceName == undefined
-          ? "--"
-          : item?.product?.networkDeviceName;
-      assignedDevicesList.tag = item.product.tag;
-      assignedDevicesList.storageType = item.product.storageType;
-      assignedDevicesList.assignBy = item.assignedBy.email;
-      assignedDevicesList.assignDate = item.createdAt;
-      return assignedDevicesList;
-    });
-    // console.log("finalResponse", finalResponse);
-    res.status(StatusCodes.OK).json({ assignedDevices: finalResponse });
-  }
+  const assignedDevicesList = assignedProducts.map((item) => ({
+    _id: item._id,
+    firstName: item.user.fname,
+    lastName: item.user.lname,
+    email: item.user.email,
+    username: item.user.username,
+    branch: item.product.branch,
+    warrantyPeriod: item.product.warrantyPeriod,
+    productCategory: item.product.productCategory,
+    systemName: item.product.systemName,
+    systemModel: item.product.systemModel,
+    productType: item.product.productType,
+    systemBrand: item.product.systemBrand,
+    cpu: item.product.cpu,
+    ram: item.product.ram,
+    storageCapacity: item.product.storageCapacity,
+    os: item.product.os,
+    macAddress: item.product.macAddress,
+    productKey: item.product.productKey,
+    serialNumber: item.product.serialNumber,
+    accessoriesName:
+      item?.product?.accessoriesName == undefined ? "--" : item?.product?.accessoriesName,
+    networkDeviceName:
+      item?.product?.networkDeviceName == undefined ? "--" : item?.product?.networkDeviceName,
+    tag: item.product.tag,
+    storageType: item.product.storageType,
+    assignBy: item.assignedBy.email,
+    assignDate: item.createdAt,
+  }));
+
+  res.status(StatusCodes.OK).json({
+    assignedDevices: assignedDevicesList,
+    totalCount,
+    totalPages: Math.ceil(totalCount / limit),
+    currentPage: page,
+  });
 };
+
 
 const getSingleAssignedProduct = async (req, res) => {
   const { id: assignedDeviceId } = req.params;

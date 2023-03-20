@@ -12,30 +12,94 @@ const createProduct = async (req, res) => {
 };
 
 const getAllProduct = async (req, res) => {
-  const { } = req.query; // for future search query
-  const queryObject = {};
+  const { branch, productCategory, productType, systemName, systemModel, systemBrand, cpu, ram, storageType, storageCapacity, os, macAddress, ipAddress, tag } = req.body; // for future search query
+  const bodyObject = {};
 
   if (req.user.role === "admin") {
-    queryObject["branch"] = req.user.branch;
+    bodyObject["branch"] = req.user.branch;
+  } else if (req.user.role === "superadmin") {
+    if (branch) {
+      bodyObject["branch"] = branch;
+    }
   }
 
+  if (productCategory) {
+    bodyObject["productCategory"] = productCategory;
+  }
+
+  if (productType) {
+    bodyObject["productType"] = productType;
+  }
+
+  if (systemName) {
+    bodyObject.systemName = { $regex: systemName, $options: 'i' };
+  }
+
+  if (systemModel) {
+    bodyObject.systemModel = { $regex: systemModel, $options: 'i' };
+  }
+
+  if (systemBrand) {
+    bodyObject.systemBrand = { $regex: systemBrand, $options: 'i' };
+  }
+
+  if (cpu) {
+    bodyObject.cpu = { $regex: cpu, $options: 'i' };
+  }
+
+  if (ram) {
+    bodyObject.ram = { $regex: ram, $options: 'i' };
+  }
+
+  if (storageType) {
+    bodyObject.storageType = { $regex: storageType, $options: 'i' };
+  }
+
+  if (storageCapacity) {
+    bodyObject.storageCapacity = { $regex: storageCapacity, $options: 'i' };
+  }
+
+  if (os) {
+    bodyObject.os = { $regex: os, $options: 'i' };
+  }
+
+  if (macAddress) {
+    bodyObject.macAddress = { $regex: macAddress, $options: 'i' };
+  }
+
+  if (ipAddress) {
+    bodyObject.ipAddress = { $regex: ipAddress, $options: 'i' };
+  }
+
+  if (tag) {
+    bodyObject["tag"] = tag;
+  }
+  // console.log('bodyObject', bodyObject);
+  // res.status(StatusCodes.OK).send('ok');
+  // return;
+
   const count = await Product.aggregate([
-    { $match: queryObject },
+    { $match: bodyObject },
     { $count: "total" }
   ]);
-  
+
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const productList = await Product.find(queryObject)
+  const productList = await Product.find(bodyObject)
     .skip(skip)
     .limit(limit)
     .lean();
 
   const total = count.length ? count[0].total : 0;
 
-  res.status(StatusCodes.OK).json({ products: productList, total: total });
+  res.status(StatusCodes.OK).json({
+    products: productList,
+    totalCount: total,
+    totalPages: Math.ceil(total / limit),
+    currentPage: page
+  });
 };
 
 const getSingleProduct = async (req, res) => {

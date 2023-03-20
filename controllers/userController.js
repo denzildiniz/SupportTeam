@@ -12,7 +12,7 @@ const { json } = require("express");
 // };
 
 const getAllUsers = async (req, res) => {
-  const { username } = req.query;
+  const { username, email } = req.query;
   const queryObject = {};
 
   if (req.query.page === '-1') {
@@ -29,6 +29,10 @@ const getAllUsers = async (req, res) => {
 
   if (username) {
     queryObject.username = { $regex: username, $options: 'i' };
+  }
+
+  if (email) {
+    queryObject.email = { $regex: email, $options: 'i' };
   }
 
   const userCount = await User.countDocuments(queryObject);
